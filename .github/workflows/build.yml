@@ -19,7 +19,7 @@ jobs:
 
   testospython:
     name: Test OS/Python version
-    needs: test
+    needs: lint
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
