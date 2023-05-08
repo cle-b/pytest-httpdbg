@@ -1,4 +1,4 @@
-name: httpdbg
+name: build
 
 on: [push]
 
