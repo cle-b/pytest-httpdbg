@@ -2,6 +2,8 @@
 
 A pytest plugin to record HTTP(S) requests with stack trace.
 
+![](ui.png)
+
 ## installation 
 
 ```
