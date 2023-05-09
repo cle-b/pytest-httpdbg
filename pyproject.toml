@@ -10,7 +10,7 @@ authors = [
 description="A pytest plugin to record HTTP(S) requests with stack trace"
 readme="README.md"
 urls = {repository = "https://github.com/cle-b/pytest-httpdbg"}
-requires-python = ">=3.6"
+requires-python = ">=3.7.0"
 license = {text = "Apache-2.0"}
 classifiers = [
     "Development Status :: 3 - Alpha",
