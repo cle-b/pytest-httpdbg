@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+import pickle
 import shutil
 import time
+from typing import Optional
+import uuid
 
 import pytest
 
@@ -10,22 +13,6 @@ from httpdbg import HTTPRecords
 
 httpdbg_records = pytest.StashKey[HTTPRecords]()
 httpdbg_record_filename = pytest.StashKey[str]()
-
-
-@pytest.fixture(scope="session", autouse=True)
-def http_requests_records(request) -> HTTPRecords:
-    if request.config.option.httpdbg:
-        with httpdbg(initiators=request.config.option.httpdbg_initiator) as records:
-            yield records
-    else:
-        records = HTTPRecords()
-        yield records
-
-
-@pytest.fixture(autouse=True)
-def record_http_requests_by_test(http_requests_records, request):
-    request.node.stash[httpdbg_records] = http_requests_records
-    yield
 
 
 def safe_test_name_for_filename(nodeid):
@@ -45,7 +32,7 @@ def pytest_runtest_makereport(item, call):
             )
             item.stash[httpdbg_record_filename] = filename
 
-        with open(item.stash[httpdbg_record_filename], "a") as f:
+        with open(item.stash[httpdbg_record_filename], "a", encoding="utf-8") as f:
             f.write(f"# {item.nodeid} - {call.when}\n\n")
             for record in item.stash[httpdbg_records]:
                 f.write(f"{record_to_md(record)}\n")
@@ -126,3 +113,22 @@ def pytest_configure(config):
     if httpdbg_dir and not config.option.httpdbg_no_clean:
         if os.path.isdir(httpdbg_dir):
             shutil.rmtree(httpdbg_dir)
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_protocol(item: pytest.Item, nextitem: Optional[pytest.Item]):
+    if item.config.option.httpdbg or "HTTPDBG_SUBPROCESS_DIR" in os.environ:
+        with httpdbg(initiators=item.config.option.httpdbg_initiator) as records:
+            item.stash[httpdbg_records] = records
+            yield
+            if "PYTEST_XDIST_WORKER" in os.environ:
+                if "HTTPDBG_SUBPROCESS_DIR" in os.environ:
+                    if len(records.requests) > 0:
+                        fname = f"{os.environ['HTTPDBG_SUBPROCESS_DIR']}/{uuid.uuid1()}"
+                        with open(f"{fname}.httpdbgrecords.tmp", "wb") as f:
+                            pickle.dump(records, f)
+                        os.rename(
+                            f"{fname}.httpdbgrecords.tmp", f"{fname}.httpdbgrecords"
+                        )
+    else:
+        yield
