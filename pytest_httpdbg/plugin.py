@@ -32,7 +32,7 @@ def pytest_runtest_makereport(item, call):
             )
             item.stash[httpdbg_record_filename] = filename
 
-        with open(item.stash[httpdbg_record_filename], "a") as f:
+        with open(item.stash[httpdbg_record_filename], "a", encoding="utf-8") as f:
             f.write(f"# {item.nodeid} - {call.when}\n\n")
             for record in item.stash[httpdbg_records]:
                 f.write(f"{record_to_md(record)}\n")
