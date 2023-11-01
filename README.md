@@ -44,16 +44,19 @@ You can use any package as an initiator, this is not limited to HTTP requests.
 
 ## test report
 
-One log file in markdown format is created per test.
+When the test is finished (teardown step included), one log file in markdown format is written. The path to this log file is stashed in the item when the test starts (before the setup step), even if the file not exists yet.
 
 ### pytest-html
 
 You can copy the following code in your top-level `conftest.py` to include the logs into your pytest-html report.
 
 ```python
+import os
+
 import pytest
 
 from pytest_httpdbg import httpdbg_record_filename
+
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
@@ -62,12 +65,18 @@ def pytest_runtest_makereport(item, call):
     report = outcome.get_result()    
     extra = getattr(report, "extra", [])
 
-    if report.when == "teardown":
+    if call.when == "setup":
         if httpdbg_record_filename in item.stash:
             extra.append(
                 pytest_html.extras.url(
-                    item.stash[httpdbg_record_filename], name="HTTPDBG"
+                    os.path.basename(item.stash[httpdbg_record_filename]), name="HTTPDBG"
                 )
             )
-        report.extra = extra
+            report.extra = extra
 ```
+
+This example works if you use the same directory for the html test report file and the httpdbg logs. 
+ 
+ `pytest demo/ --httpdbg --httpdbg-dir report  --html=report/report.html`
+
+If this is not the case, you must adapt it to your configuration.
