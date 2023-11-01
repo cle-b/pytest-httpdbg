@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import glob
 import os
 import pickle
-import shutil
 import time
 from typing import Optional
 import uuid
@@ -9,35 +9,13 @@ import uuid
 import pytest
 
 from httpdbg import httpdbg
-from httpdbg import HTTPRecords
 
-httpdbg_records = pytest.StashKey[HTTPRecords]()
 httpdbg_record_filename = pytest.StashKey[str]()
 
 
 def safe_test_name_for_filename(nodeid):
     safe_nodeid = "".join([c if c.isalnum() else "_" for c in nodeid])
-    return f"{safe_nodeid}_{int(time.time()*1000)}.md"
-
-
-def pytest_runtest_makereport(item, call):
-    httpdbg_dir = item.config.option.httpdbg_dir
-
-    if httpdbg_dir and len(item.stash[httpdbg_records]) > 0:
-        os.makedirs(httpdbg_dir, exist_ok=True)
-
-        if httpdbg_record_filename not in item.stash:
-            filename = os.path.join(
-                httpdbg_dir, safe_test_name_for_filename(item.nodeid)
-            )
-            item.stash[httpdbg_record_filename] = filename
-
-        with open(item.stash[httpdbg_record_filename], "a", encoding="utf-8") as f:
-            f.write(f"# {item.nodeid} - {call.when}\n\n")
-            for record in item.stash[httpdbg_records]:
-                f.write(f"{record_to_md(record)}\n")
-
-        item.stash[httpdbg_records].reset()
+    return f"{safe_nodeid}_{int(time.time()*1000)}.httpdbg.md"
 
 
 def content_type_md(content_type):
@@ -94,7 +72,7 @@ def pytest_addoption(parser):
         "--httpdbg-no-clean",
         action="store_true",
         default=False,
-        help="clean httpdbg directory",
+        help="do not clean the httpdbg directory",
     )
     parser.addoption(
         "--httpdbg-initiator",
@@ -112,17 +90,35 @@ def pytest_configure(config):
     httpdbg_dir = config.option.httpdbg_dir
     if httpdbg_dir and not config.option.httpdbg_no_clean:
         if os.path.isdir(httpdbg_dir):
-            shutil.rmtree(httpdbg_dir)
+            for logfile in glob.glob(os.path.join(httpdbg_dir, "*.httpdbg.md")):
+                os.remove(logfile)
+            try:
+                os.rmdir(httpdbg_dir)
+            except OSError:
+                pass  # the directory is not empty, we don't remove it
 
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_protocol(item: pytest.Item, nextitem: Optional[pytest.Item]):
     if item.config.option.httpdbg or "HTTPDBG_SUBPROCESS_DIR" in os.environ:
         with httpdbg(initiators=item.config.option.httpdbg_initiator) as records:
-            item.stash[httpdbg_records] = records
+            # the record of the http requests has been enable using a pytest command line argument
+            # -> first, we stash the path to the log file
+            httpdbg_dir = item.config.option.httpdbg_dir
+            if httpdbg_dir:
+                os.makedirs(httpdbg_dir, exist_ok=True)
+
+                filename = os.path.join(
+                    httpdbg_dir, safe_test_name_for_filename(item.nodeid)
+                )
+                item.stash[httpdbg_record_filename] = filename
+
             yield
-            if "PYTEST_XDIST_WORKER" in os.environ:
-                if "HTTPDBG_SUBPROCESS_DIR" in os.environ:
+
+            # pytest is executed using pyhttpdbg
+            # -> we serialize the HTTPRecords object to share it with the main pyhttpdbg process
+            if "HTTPDBG_SUBPROCESS_DIR" in os.environ:
+                if "PYTEST_XDIST_WORKER" in os.environ:
                     if len(records.requests) > 0:
                         fname = f"{os.environ['HTTPDBG_SUBPROCESS_DIR']}/{uuid.uuid1()}"
                         with open(f"{fname}.httpdbgrecords.tmp", "wb") as f:
@@ -130,5 +126,15 @@ def pytest_runtest_protocol(item: pytest.Item, nextitem: Optional[pytest.Item]):
                         os.rename(
                             f"{fname}.httpdbgrecords.tmp", f"{fname}.httpdbgrecords"
                         )
+
+            # the record of the http requests has been enable using a pytest command line argument
+            # -> we create a human readable file that contains all the HTTP requests recorded
+            if httpdbg_record_filename in item.stash:
+                with open(
+                    item.stash[httpdbg_record_filename], "w", encoding="utf-8"
+                ) as f:
+                    f.write(f"# {item.nodeid}\n\n")
+                    for record in records:
+                        f.write(f"{record_to_md(record)}\n")
     else:
         yield
