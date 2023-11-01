@@ -90,8 +90,8 @@ def pytest_configure(config):
     httpdbg_dir = config.option.httpdbg_dir
     if httpdbg_dir and not config.option.httpdbg_no_clean:
         if os.path.isdir(httpdbg_dir):
-            for logfile in glob.glob("*.httpdbg.md", root_dir=httpdbg_dir):
-                os.remove(os.path.join(httpdbg_dir, logfile))
+            for logfile in glob.glob(os.path.join(httpdbg_dir, "*.httpdbg.md")):
+                os.remove(logfile)
             try:
                 os.rmdir(httpdbg_dir)
             except OSError:
