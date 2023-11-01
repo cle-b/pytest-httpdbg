@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import glob
 import os
 import pickle
 import shutil
@@ -9,14 +10,13 @@ import uuid
 import pytest
 
 from httpdbg import httpdbg
-from httpdbg import HTTPRecords
 
 httpdbg_record_filename = pytest.StashKey[str]()
 
 
 def safe_test_name_for_filename(nodeid):
     safe_nodeid = "".join([c if c.isalnum() else "_" for c in nodeid])
-    return f"{safe_nodeid}_{int(time.time()*1000)}.md"
+    return f"{safe_nodeid}_{int(time.time()*1000)}.httpdbg.md"
 
 
 def content_type_md(content_type):
@@ -73,7 +73,7 @@ def pytest_addoption(parser):
         "--httpdbg-no-clean",
         action="store_true",
         default=False,
-        help="clean httpdbg directory",
+        help="do not clean the httpdbg directory",
     )
     parser.addoption(
         "--httpdbg-initiator",
@@ -91,7 +91,13 @@ def pytest_configure(config):
     httpdbg_dir = config.option.httpdbg_dir
     if httpdbg_dir and not config.option.httpdbg_no_clean:
         if os.path.isdir(httpdbg_dir):
-            shutil.rmtree(httpdbg_dir)
+            for logfile in glob.glob("*.httpdbg.md", root_dir=httpdbg_dir):
+                os.remove(os.path.join(httpdbg_dir, logfile))
+            try:
+                os.rmdir(httpdbg_dir)
+            except OSError:
+                pass # the directory is not empty, we don't remove it
+                
 
 
 @pytest.hookimpl(hookwrapper=True)

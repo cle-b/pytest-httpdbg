@@ -18,7 +18,7 @@ pip install pytest-httpdbg
   --httpdbg             record HTTP(S) requests
   --httpdbg-dir=HTTPDBG_DIR
                         save httpdbg traces in a directory
-  --httpdbg-no-clean    clean httpdbg directory
+  --httpdbg-no-clean    do not clean the httpdbg directory
   --httpdbg-initiator=HTTPDBG_INITIATOR
                         add a new initiator (package) for httpdbg
 ```
