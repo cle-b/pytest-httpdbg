@@ -2,7 +2,6 @@
 import glob
 import os
 import pickle
-import shutil
 import time
 from typing import Optional
 import uuid
@@ -96,8 +95,7 @@ def pytest_configure(config):
             try:
                 os.rmdir(httpdbg_dir)
             except OSError:
-                pass # the directory is not empty, we don't remove it
-                
+                pass  # the directory is not empty, we don't remove it
 
 
 @pytest.hookimpl(hookwrapper=True)
