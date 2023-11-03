@@ -8,7 +8,7 @@ import uuid
 
 import pytest
 
-from httpdbg import httpdbg
+from httpdbg import httprecord
 
 httpdbg_record_filename = pytest.StashKey[str]()
 
@@ -47,7 +47,7 @@ def record_to_md(record):
 ```
 
 ```{content_type_md(record.request.get_header("Content-Type"))}
-{record.request.preview.get("parsed", record.request.preview.get("text",""))}
+{record.request.preview.get("parsed", record.request.preview.get("text", ""))}
 ```
 
 ### response
@@ -57,7 +57,7 @@ def record_to_md(record):
 ```
 
 ```{content_type_md(record.response.get_header("Content-Type"))}
-{record.response.preview.get("parsed", record.response.preview.get("text",""))}
+{record.response.preview.get("parsed", record.response.preview.get("text", ""))}
 ```
 
 """
@@ -101,7 +101,7 @@ def pytest_configure(config):
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_protocol(item: pytest.Item, nextitem: Optional[pytest.Item]):
     if item.config.option.httpdbg or "HTTPDBG_SUBPROCESS_DIR" in os.environ:
-        with httpdbg(initiators=item.config.option.httpdbg_initiator) as records:
+        with httprecord(initiators=item.config.option.httpdbg_initiator) as records:
             # the record of the http requests has been enable using a pytest command line argument
             # -> first, we stash the path to the log file
             httpdbg_dir = item.config.option.httpdbg_dir
