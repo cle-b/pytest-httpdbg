@@ -62,17 +62,18 @@ from pytest_httpdbg import httpdbg_record_filename
 def pytest_runtest_makereport(item, call):
     pytest_html = item.config.pluginmanager.getplugin("html")
     outcome = yield
-    report = outcome.get_result()    
-    extra = getattr(report, "extra", [])
+    report = outcome.get_result()
+    extras = getattr(report, "extras", [])
 
-    if call.when == "setup":
+    if call.when == "call":
         if httpdbg_record_filename in item.stash:
-            extra.append(
+            extras.append(
                 pytest_html.extras.url(
-                    os.path.basename(item.stash[httpdbg_record_filename]), name="HTTPDBG"
+                    os.path.basename(item.stash[httpdbg_record_filename]),
+                    name="HTTPDBG",
                 )
             )
-            report.extra = extra
+            report.extras = extras
 ```
 
 This example works if you use the same directory for the html test report file and the httpdbg logs. 
@@ -80,3 +81,7 @@ This example works if you use the same directory for the html test report file a
  `pytest demo/ --httpdbg --httpdbg-dir report  --html=report/report.html`
 
 If this is not the case, you must adapt it to your configuration.
+
+## documentation
+
+A complete documentation is available [here](https://httpdbg-docs.readthedocs.io/en/latest/pytest/).
