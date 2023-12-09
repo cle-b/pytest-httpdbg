@@ -84,4 +84,4 @@ If this is not the case, you must adapt it to your configuration.
 
 ## documentation
 
-A complete documentation is available [here](https://httpdbg-docs.readthedocs.io/en/latest/pytest/).
+https://httpdbg-docs.readthedocs.io/en/latest/pytest/
