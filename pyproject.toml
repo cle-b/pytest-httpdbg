@@ -9,7 +9,6 @@ authors = [
 ]
 description="A pytest plugin to record HTTP(S) requests with stack trace"
 readme="README.md"
-urls = {repository = "https://github.com/cle-b/pytest-httpdbg"}
 requires-python = ">=3.7.0"
 license = {text = "Apache-2.0"}
 classifiers = [
@@ -35,3 +34,6 @@ packages = ["pytest_httpdbg"]
 [tool.setuptools.dynamic]
 version = {attr = "pytest_httpdbg.VERSION"}
 
+[project.urls]
+Source = "https://github.com/cle-b/pytest-httpdbg/"
+Documentation = "https://httpdbg.readthedocs.io/"
