@@ -29,15 +29,15 @@ def content_type_md(content_type):
     return ct
 
 
-def record_to_md(record):
+def record_to_md(record, initiators):
     return f"""## {record.url}
 
 ### initiator
 
-{record.initiator.short_label}
+{initiators[record.initiator_id].label}
 
 ```
-{record.initiator.short_stack}
+{initiators[record.initiator_id].short_stack}
 ```
 
 ### request
@@ -138,6 +138,6 @@ def pytest_runtest_protocol(item: pytest.Item, nextitem: Optional[pytest.Item]):
                 ) as f:
                     f.write(f"# {item.nodeid}\n\n")
                     for record in records:
-                        f.write(f"{record_to_md(record)}\n")
+                        f.write(f"{record_to_md(record, records.initiators)}\n")
     else:
         yield
