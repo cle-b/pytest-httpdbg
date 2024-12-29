@@ -29,15 +29,15 @@ def content_type_md(content_type):
     return ct
 
 
-def record_to_md(record):
+def record_to_md(record, initiators):
     return f"""## {record.url}
 
 ### initiator
 
-{record.initiator.short_label}
+{initiators[record.initiator_id].label}
 
 ```
-{record.initiator.short_stack}
+{initiators[record.initiator_id].short_stack}
 ```
 
 ### request
@@ -100,7 +100,10 @@ def pytest_configure(config):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_protocol(item: pytest.Item, nextitem: Optional[pytest.Item]):
-    if item.config.option.httpdbg or "HTTPDBG_SUBPROCESS_DIR" in os.environ:
+    if item.config.option.httpdbg or (
+        ("HTTPDBG_SUBPROCESS_DIR" in os.environ)
+        and ("PYTEST_XDIST_WORKER" in os.environ)
+    ):
         with httprecord(initiators=item.config.option.httpdbg_initiator) as records:
             # the record of the http requests has been enable using a pytest command line argument
             # -> first, we stash the path to the log file
@@ -135,6 +138,6 @@ def pytest_runtest_protocol(item: pytest.Item, nextitem: Optional[pytest.Item]):
                 ) as f:
                     f.write(f"# {item.nodeid}\n\n")
                     for record in records:
-                        f.write(f"{record_to_md(record)}\n")
+                        f.write(f"{record_to_md(record, records.initiators)}\n")
     else:
         yield
