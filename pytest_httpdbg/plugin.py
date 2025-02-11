@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 import glob
 import os
-import pickle
 import time
 from typing import Optional
-import uuid
 
 import pytest
 
@@ -100,10 +98,7 @@ def pytest_configure(config):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_protocol(item: pytest.Item, nextitem: Optional[pytest.Item]):
-    if item.config.option.httpdbg or (
-        ("HTTPDBG_SUBPROCESS_DIR" in os.environ)
-        and ("PYTEST_XDIST_WORKER" in os.environ)
-    ):
+    if item.config.option.httpdbg:
         with httprecord(initiators=item.config.option.httpdbg_initiator) as records:
             # the record of the http requests has been enable using a pytest command line argument
             # -> first, we stash the path to the log file
@@ -117,18 +112,6 @@ def pytest_runtest_protocol(item: pytest.Item, nextitem: Optional[pytest.Item]):
                 item.stash[httpdbg_record_filename] = filename
 
             yield
-
-            # pytest is executed using pyhttpdbg
-            # -> we serialize the HTTPRecords object to share it with the main pyhttpdbg process
-            if "HTTPDBG_SUBPROCESS_DIR" in os.environ:
-                if "PYTEST_XDIST_WORKER" in os.environ:
-                    if len(records.requests) > 0:
-                        fname = f"{os.environ['HTTPDBG_SUBPROCESS_DIR']}/{uuid.uuid1()}"
-                        with open(f"{fname}.httpdbgrecords.tmp", "wb") as f:
-                            pickle.dump(records, f)
-                        os.rename(
-                            f"{fname}.httpdbgrecords.tmp", f"{fname}.httpdbgrecords"
-                        )
 
             # the record of the http requests has been enable using a pytest command line argument
             # -> we create a human readable file that contains all the HTTP requests recorded

@@ -7,7 +7,7 @@ name = "pytest-httpdbg"
 authors = [
     {name = "cle-b", email = "cle@tictac.pm"},
 ]
-description="A pytest plugin to record HTTP(S) requests with stack trace"
+description="A pytest plugin to record HTTP(S) requests with stack trace."
 readme="README.md"
 requires-python = ">=3.9.0"
 license = {text = "Apache-2.0"}
@@ -24,7 +24,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-  "httpdbg>=0.29.0",
+  "httpdbg>=0.32.0",
   "pytest>=7.0.0"
 ]
 
