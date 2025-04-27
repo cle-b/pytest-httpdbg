@@ -2,6 +2,7 @@
 import glob
 import os
 import time
+import traceback
 from typing import Optional
 
 import pytest
@@ -254,18 +255,37 @@ def pytest_runtest_makereport(item, call):
                                 label += f"{record.request.method} "
 
                             if record.request.uri:
-                                uri = record.request.uri
-                                if len(uri) > 200:
-                                    uri = uri[:100] + "..." + uri[-97:]
-                                label += f"{uri}"
+                                url = record.request.uri
+                            else:
+                                url = record.url
+                            if len(url) > 200:
+                                url = url[:100] + "..." + url[-97:]
+                            label += f"{type(record.exception) if record.exception is not None else ""} {url}"
 
                             if record.tag:
                                 label += f" (from {record.tag})"
 
                             with allure.step(label):
                                 details = record.url
+                                details += f"\n\nstatus: {record.response.status_code} {record.response.message}"
+                                details += f"\n\nstart: {record.tbegin.isoformat()}"
+                                details += f"\nend:   {record.last_update.isoformat()}"
+
                                 if record.initiator_id in records.initiators:
                                     details += f"\n\n{records.initiators[record.initiator_id].short_stack}"
+
+                                if record.exception is not None:
+                                    details += (
+                                        f"\n\nException:   {type(record.exception)}\n"
+                                    )
+                                    details += "".join(
+                                        traceback.format_exception(
+                                            type(record.exception),
+                                            record.exception,
+                                            record.exception.__traceback__,
+                                        )
+                                    )
+
                                 allure.attach(
                                     details,
                                     name="details",
