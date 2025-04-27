@@ -63,49 +63,51 @@ def record_to_md(record, initiators):
 
 def pytest_addoption(parser):
 
-    # mode allure
-    parser.addoption(
-        "--httpdbg-allure",
-        action="store_true",
-        help="save HTTP(S) traces into the allure report",
-    )
+    reporting_group = parser.getgroup('reporting') 
 
     # mode custom
-    parser.addoption("--httpdbg", action="store_true", help="record HTTP(S) requests")
+    reporting_group.addoption("--httpdbg", action="store_true", help="record HTTP(S) requests")
 
-    parser.addoption(
+    reporting_group.addoption(
         "--httpdbg-dir", type=str, default="", help="save httpdbg traces in a directory"
     )
 
-    parser.addoption(
+    reporting_group.addoption(
         "--httpdbg-no-clean",
         action="store_true",
         default=False,
         help="do not clean the httpdbg directory",
     )
 
-    parser.addoption(
+    # mode allure
+    reporting_group.addoption(
+        "--httpdbg-allure",
+        action="store_true",
+        help="save HTTP(S) traces into the allure report",
+    )
+
+    reporting_group.addoption(
         "--httpdbg-no-headers",
         action="store_true",
         default=False,
         help="save the HTTP headers",
     )
 
-    parser.addoption(
+    reporting_group.addoption(
         "--httpdbg-no-binary",
         action="store_true",
         default=False,
-        help="save the HTTP payload even if it's a binary content",
+        help="do not save the HTTP payload if it's a binary content",
     )
 
-    parser.addoption(
+    reporting_group.addoption(
         "--httpdbg-only-on-failure",
         action="store_true",
         default=False,
         help="save the HTTP requests only if the test failed",
     )
 
-    parser.addoption(
+    reporting_group.addoption(
         "--httpdbg-initiator",
         action="append",
         help="add a new initiator (package) for httpdbg",
