@@ -9,3 +9,4 @@ flask>2
 pytest-httpbin
 pytest-html
 pytest-xdist
+allure-pytest
