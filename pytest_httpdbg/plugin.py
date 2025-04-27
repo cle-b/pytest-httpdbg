@@ -63,10 +63,12 @@ def record_to_md(record, initiators):
 
 def pytest_addoption(parser):
 
-    reporting_group = parser.getgroup('reporting') 
+    reporting_group = parser.getgroup("reporting")
 
     # mode custom
-    reporting_group.addoption("--httpdbg", action="store_true", help="record HTTP(S) requests")
+    reporting_group.addoption(
+        "--httpdbg", action="store_true", help="record HTTP(S) requests"
+    )
 
     reporting_group.addoption(
         "--httpdbg-dir", type=str, default="", help="save httpdbg traces in a directory"
