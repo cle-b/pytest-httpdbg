@@ -260,7 +260,7 @@ def pytest_runtest_makereport(item, call):
                                 url = record.url
                             if len(url) > 200:
                                 url = url[:100] + "..." + url[-97:]
-                            label += f"{type(record.exception) if record.exception is not None else ""} {url}"
+                            label += f"{(str(type(record.exception)) + ' ') if record.exception is not None else ""}{url}"
 
                             if record.tag:
                                 label += f" (from {record.tag})"
