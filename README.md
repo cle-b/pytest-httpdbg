@@ -77,7 +77,7 @@ reporting:
   --httpdbg-no-clean                        do not clean the httpdbg directory
 
   --httpdbg-allure                          save HTTP(S) traces into the allure report
-  --httpdbg-no-headers                      save the HTTP headers
+  --httpdbg-no-headers                      do not save the HTTP headers
   --httpdbg-no-binary                       do not save the HTTP payload if it's a binary content
   --httpdbg-only-on-failure                 save the HTTP requests only if the test failed
 
