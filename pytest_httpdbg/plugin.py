@@ -93,7 +93,7 @@ def pytest_addoption(parser):
         "--httpdbg-no-headers",
         action="store_true",
         default=False,
-        help="save the HTTP headers",
+        help="do not save the HTTP headers",
     )
 
     reporting_group.addoption(
