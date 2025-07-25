@@ -171,7 +171,8 @@ def pytest_runtest_protocol(item: pytest.Item, nextitem: Optional[pytest.Item]):
 def pytest_sessionstart(session):
     if session.config.option.httpdbg_allure:
         session.httpdbg_recorder = httprecord(
-            initiators=session.config.option.httpdbg_initiator
+            initiators=session.config.option.httpdbg_initiator,
+            multiprocess=False,
         )
         session.httpdbg_records = session.httpdbg_recorder.__enter__()
 
