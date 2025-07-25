@@ -2,6 +2,8 @@
 import glob
 import os
 
+import pytest
+
 confest_py = """
         import pytest
         import requests
@@ -77,6 +79,7 @@ def test_record_in_dir(pytester, tmp_path):
     assert "test_post" not in log
 
 
+@pytest.mark.skip(reason="https://github.com/cle-b/pytest-httpdbg/issues/16")
 def test_with_initiator(pytester, tmp_path):
     logs_dir = tmp_path / "logs"
     logs_dir.mkdir()
