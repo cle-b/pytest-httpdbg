@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import glob
 import os
 import time
@@ -188,8 +187,10 @@ def get_allure_attachment_type_from_content_type(content_type: str):
     try:
         import allure
 
+        content_type = content_type.split(";", 1)[0].strip()
+
         for attachment_type in allure.attachment_type:
-            if attachment_type.mime_type == content_type:
+            if attachment_type.mime_type.lower() == content_type.lower():
                 return attachment_type
     except ImportError:
         pass
@@ -219,7 +220,7 @@ def req_resp_steps(label, req, save_headers, save_binary_payload):
                     )
                 if payload:
                     attachment_type = get_allure_attachment_type_from_content_type(
-                        content.get("content_type")
+                        content.get("content_type", "")
                     )
                     allure.attach(
                         payload, name="payload", attachment_type=attachment_type
