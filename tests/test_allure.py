@@ -1,7 +1,9 @@
-# -*- coding: utf-8 -*-
 import json
 
+import allure
 import pytest
+
+from pytest_httpdbg.plugin import get_allure_attachment_type_from_content_type
 
 confest_py = """
         import pytest
@@ -431,3 +433,22 @@ def test_mode_allure_no_step_if_empty(pytester, tmp_path):
                 sub_steps = step["steps"][0].get("steps")
 
     assert sub_steps is None
+
+
+@pytest.mark.parametrize(
+    "content_type, attachment_type",
+    [
+        ["application/json", allure.attachment_type.JSON],
+        ["application/JSON", allure.attachment_type.JSON],
+        ["application/json;charset=utf-8", allure.attachment_type.JSON],
+        ["application/json ; charset=utf-8", allure.attachment_type.JSON],
+        [
+            "application/json;charset=utf-8,application/json;charset=utf-8",
+            allure.attachment_type.JSON,
+        ],
+        ["image/svg+xml", allure.attachment_type.SVG],
+        ["text/plain", allure.attachment_type.TEXT],
+    ],
+)
+def test_get_allure_attachment_type_from_content_type(content_type, attachment_type):
+    assert get_allure_attachment_type_from_content_type(content_type) == attachment_type
