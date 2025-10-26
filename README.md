@@ -99,4 +99,4 @@ pyhttpdbg -m pytest -v examples/
 
 ## documentation
 
-https://httpdbg.readthedocs.io/en/latest/pytest/
+https://httpdbg.readthedocs.io/en/latest/test/#pytest-httpdbg
