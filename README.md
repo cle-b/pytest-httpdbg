@@ -18,9 +18,13 @@ All you need to do is add the `--httpdbg-allure` option to your pytest command l
 pytest ../httpdbg-docs/examples/ --alluredir=./allure-results --httpdbg-allure
 ``` 
 
-If an HTTP request is made by the test (or within a fixture, during the setup or teardown phase), the request will be saved in the Allure report under a step called `httpdbg`.
+If an HTTP request is made by the test (or within a fixture, during the setup or teardown phase), a HTTP traces report will be saved in the Allure report under a step called `httpdbg`.
 
-![](https://github.com/cle-b/pytest-httpdbg/blob/main/pytest-httpdbg-allure-0.8.0.png?raw=true)
+### compact mode
+![](https://github.com/cle-b/pytest-httpdbg/blob/main/pytest-httpdbg-allure-compact-0.10.0.png?raw=true)
+
+### full mode
+![](https://github.com/cle-b/pytest-httpdbg/blob/main/pytest-httpdbg-allure-full-0.10.0.png?raw=true)
 
 
 ## Custom test report
@@ -77,8 +81,6 @@ reporting:
   --httpdbg-no-clean                        do not clean the httpdbg directory
 
   --httpdbg-allure                          save HTTP(S) traces into the allure report
-  --httpdbg-no-headers                      do not save the HTTP headers
-  --httpdbg-no-binary                       do not save the HTTP payload if it's a binary content
   --httpdbg-only-on-failure                 save the HTTP requests only if the test failed
 
   --httpdbg-initiator=HTTPDBG_INITIATOR     add a new initiator (package) for httpdbg
