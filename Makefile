@@ -5,10 +5,10 @@ setup:
 	pip install -r requirements-dev.txt
 
 format:
-	black pytest_httpdbg tests
+	black pytest_httpdbg tests --target-version py39
 
 lint:
-	black --check pytest_httpdbg tests
+	black --check pytest_httpdbg tests --target-version py39
 	flake8 pytest_httpdbg tests
 
 check: lint

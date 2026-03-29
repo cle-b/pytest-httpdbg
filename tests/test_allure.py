@@ -2,7 +2,6 @@ import json
 
 import pytest
 
-
 confest_py = """
         import pytest
         import requests
@@ -26,14 +25,12 @@ confest_py = """
 def test_mode_mutual_exclusion(pytester):
     pytester.makeconftest(confest_py)
 
-    pytester.makepyfile(
-        """
+    pytester.makepyfile("""
         import requests
 
         def test_get(httpbin, fixture_session, fixture_function):
             requests.get(httpbin.url + "/get")
-        """
-    )
+        """)
 
     result = pytester.runpytest("--httpdbg", "--httpdbg-allure")
 
@@ -49,8 +46,7 @@ def test_mode_mutual_exclusion(pytester):
 def test_mode_allure(pytester, tmp_path):
     pytester.makeconftest(confest_py)
 
-    pytester.makepyfile(
-        """
+    pytester.makepyfile("""
         import requests
 
         def test_get(httpbin, fixture_session, fixture_function):
@@ -58,8 +54,7 @@ def test_mode_allure(pytester, tmp_path):
 
         def test_post(httpbin, fixture_session, fixture_function):
             requests.post(httpbin.url + "/post", json={"a":"b"})
-        """
-    )
+        """)
 
     result = pytester.runpytest("--httpdbg-allure", f"--alluredir={tmp_path}")
 
@@ -92,8 +87,7 @@ def test_mode_allure(pytester, tmp_path):
 def test_mode_allure_only_on_failure(pytester, tmp_path):
     pytester.makeconftest(confest_py)
 
-    pytester.makepyfile(
-        """
+    pytester.makepyfile("""
         import requests
 
         def test_pass(httpbin):
@@ -102,8 +96,7 @@ def test_mode_allure_only_on_failure(pytester, tmp_path):
         def test_fail(httpbin):
             requests.post(httpbin.url + "/post", json={"a":"b"})
             assert False
-        """
-    )
+        """)
 
     result = pytester.runpytest(
         "--httpdbg-allure", f"--alluredir={tmp_path}", "--httpdbg-only-on-failure"
