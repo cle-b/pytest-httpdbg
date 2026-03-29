@@ -29,8 +29,7 @@ confest_py = """
 def test_no_httpdbg(pytester):
     pytester.makeconftest(confest_py)
 
-    pytester.makepyfile(
-        """
+    pytester.makepyfile("""
         import requests
 
         def test_get(httpbin, fixture_session, fixture_function):
@@ -38,8 +37,7 @@ def test_no_httpdbg(pytester):
 
         def test_post(httpbin, fixture_session):
             requests.post(httpbin.url + "/intest")
-    """
-    )
+    """)
 
     result = pytester.runpytest()
 
@@ -52,8 +50,7 @@ def test_record_in_dir(pytester, tmp_path):
 
     pytester.makeconftest(confest_py)
 
-    pytester.makepyfile(
-        """
+    pytester.makepyfile("""
         import requests
 
         def test_get(httpbin, fixture_session, fixture_function):
@@ -61,8 +58,7 @@ def test_record_in_dir(pytester, tmp_path):
 
         def test_post(httpbin, fixture_session):
             requests.post(httpbin.url + "/intest")
-    """
-    )
+    """)
 
     result = pytester.runpytest("--httpdbg", "--httpdbg-dir", str(logs_dir))
 
@@ -87,14 +83,12 @@ def test_with_initiator(pytester, tmp_path):
         ".py", fakepackage="import requests\ndef coucou(url):\n    requests.get(url)\n"
     )
 
-    pytester.makepyfile(
-        """
+    pytester.makepyfile("""
         import fakepackage
 
         def test_with_initiator_fake(httpbin):
             fakepackage.coucou(httpbin.url)
-    """
-    )
+    """)
 
     result = pytester.runpytest(
         "--httpdbg",
@@ -125,14 +119,12 @@ def test_without_initiator(pytester, tmp_path):
         ".py", fakepackage="import requests\ndef coucou(url):\n    requests.get(url)\n"
     )
 
-    pytester.makepyfile(
-        """
+    pytester.makepyfile("""
         import fakepackage
 
         def test_without_initiator_fake(httpbin):
             fakepackage.coucou(httpbin.url)
-    """
-    )
+    """)
 
     result = pytester.runpytest("--httpdbg", "--httpdbg-dir", str(logs_dir))
 
