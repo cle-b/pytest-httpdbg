@@ -43,7 +43,7 @@ def record_to_md(record, initiators):
             ```
             {initiators[record.initiator_id].short_stack}
             ```
-            """)
+            """)  # noqa W293
 
     md += dedent(f"""
         
@@ -67,7 +67,7 @@ def record_to_md(record, initiators):
         {record.response.preview.get("parsed", record.response.preview.get("text", ""))}
         ```
 
-        """)
+        """)  # noqa W293
 
     return md
 
