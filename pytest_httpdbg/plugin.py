@@ -1,6 +1,5 @@
 import glob
 import os
-from textwrap import dedent
 import time
 from typing import Optional
 
@@ -29,47 +28,60 @@ def content_type_md(content_type):
 
 
 def record_to_md(record, initiators):
-    md = ""
+    md = list()
 
-    md += f"## {record.url}"
+    md.append(f"## {record.url}")
 
     if record.initiator_id in initiators:
-        md += dedent(f"""
-            
-            ### initiator
+        md.append(f"""
+### initiator
 
-            {initiators[record.initiator_id].label}
+{initiators[record.initiator_id].label}
 
-            ```
-            {initiators[record.initiator_id].short_stack}
-            ```
-            """)  # noqa W293
+```
+{initiators[record.initiator_id].short_stack}
+```
+""")
 
-    md += dedent(f"""
-        
-        ### request
+    md.append(f"""
+### request
 
-        ```http
-        {record.request.rawheaders.decode("utf-8")}
-        ```
+```http
+{record.request.rawheaders.decode("utf-8")}
+```
+""")
 
-        ```{content_type_md(record.request.get_header("Content-Type"))}
-        {record.request.preview.get("parsed", record.request.preview.get("text", ""))}
-        ```
+    request_content = record.request.preview.get(
+        "parsed", record.request.preview.get("text", "")
+    )
+    if request_content:
+        md.append(f"""
 
-        ### response
+```{content_type_md(record.request.get_header("Content-Type"))}
+{request_content}
+```
+""")
 
-        ```http
-        {record.response.rawheaders.decode("utf-8")}
-        ```
+    md.append(f"""
+### response
 
-        ```{content_type_md(record.response.get_header("Content-Type"))}
-        {record.response.preview.get("parsed", record.response.preview.get("text", ""))}
-        ```
+```http
+{record.response.rawheaders.decode("utf-8")}
+```
+""")
 
-        """)  # noqa W293
+    response_content = record.response.preview.get(
+        "parsed", record.response.preview.get("text", "")
+    )
+    if response_content:
+        md.append(f"""
+```{content_type_md(record.response.get_header("Content-Type"))}
+{response_content}
+```
 
-    return md
+""")
+
+    return "\n".join(md)
 
 
 def pytest_addoption(parser):
