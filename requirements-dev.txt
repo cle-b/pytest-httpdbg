@@ -1,7 +1,7 @@
 flake8
 black
 pytest>7
-requests<2.34  # until httpdbg and/or requests is fixed
+requests<2.34  # until httpdbg and/or requests are fixed: "You can only merge into CookieJar"
 build
 Jinja2
 Werkzeug
