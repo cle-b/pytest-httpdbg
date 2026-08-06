@@ -28,8 +28,12 @@ def content_type_md(content_type):
 
 
 def record_to_md(record, initiators):
-    return f"""## {record.url}
+    md = list()
 
+    md.append(f"## {record.url}")
+
+    if record.initiator_id in initiators:
+        md.append(f"""
 ### initiator
 
 {initiators[record.initiator_id].label}
@@ -37,28 +41,47 @@ def record_to_md(record, initiators):
 ```
 {initiators[record.initiator_id].short_stack}
 ```
+""")
 
+    md.append(f"""
 ### request
 
 ```http
 {record.request.rawheaders.decode("utf-8")}
 ```
+""")
+
+    request_content = record.request.preview.get(
+        "parsed", record.request.preview.get("text", "")
+    )
+    if request_content:
+        md.append(f"""
 
 ```{content_type_md(record.request.get_header("Content-Type"))}
-{record.request.preview.get("parsed", record.request.preview.get("text", ""))}
+{request_content}
 ```
+""")
 
+    md.append(f"""
 ### response
 
 ```http
 {record.response.rawheaders.decode("utf-8")}
 ```
+""")
 
+    response_content = record.response.preview.get(
+        "parsed", record.response.preview.get("text", "")
+    )
+    if response_content:
+        md.append(f"""
 ```{content_type_md(record.response.get_header("Content-Type"))}
-{record.response.preview.get("parsed", record.response.preview.get("text", ""))}
+{response_content}
 ```
 
-"""
+""")
+
+    return "\n".join(md)
 
 
 def pytest_addoption(parser):
