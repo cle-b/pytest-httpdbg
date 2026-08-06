@@ -1,5 +1,6 @@
 import glob
 import os
+from textwrap import dedent
 import time
 from typing import Optional
 
@@ -28,37 +29,47 @@ def content_type_md(content_type):
 
 
 def record_to_md(record, initiators):
-    return f"""## {record.url}
+    md = ""
 
-### initiator
+    md += f"## {record.url}"
 
-{initiators[record.initiator_id].label}
+    if record.initiator_id in initiators:
+        md += dedent(f"""
+            
+            ### initiator
 
-```
-{initiators[record.initiator_id].short_stack}
-```
+            {initiators[record.initiator_id].label}
 
-### request
+            ```
+            {initiators[record.initiator_id].short_stack}
+            ```
+            """)
 
-```http
-{record.request.rawheaders.decode("utf-8")}
-```
+    md += dedent(f"""
+        
+        ### request
 
-```{content_type_md(record.request.get_header("Content-Type"))}
-{record.request.preview.get("parsed", record.request.preview.get("text", ""))}
-```
+        ```http
+        {record.request.rawheaders.decode("utf-8")}
+        ```
 
-### response
+        ```{content_type_md(record.request.get_header("Content-Type"))}
+        {record.request.preview.get("parsed", record.request.preview.get("text", ""))}
+        ```
 
-```http
-{record.response.rawheaders.decode("utf-8")}
-```
+        ### response
 
-```{content_type_md(record.response.get_header("Content-Type"))}
-{record.response.preview.get("parsed", record.response.preview.get("text", ""))}
-```
+        ```http
+        {record.response.rawheaders.decode("utf-8")}
+        ```
 
-"""
+        ```{content_type_md(record.response.get_header("Content-Type"))}
+        {record.response.preview.get("parsed", record.response.preview.get("text", ""))}
+        ```
+
+        """)
+
+    return md
 
 
 def pytest_addoption(parser):
