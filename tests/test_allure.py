@@ -56,7 +56,9 @@ def test_mode_allure(pytester, tmp_path):
             requests.post(httpbin.url + "/post", json={"a":"b"})
         """)
 
-    result = pytester.runpytest("--httpdbg-allure", f"--alluredir={tmp_path}")
+    result = pytester.runpytest_subprocess(
+        "--httpdbg-allure", f"--alluredir={tmp_path}"
+    )
 
     result.assert_outcomes(passed=2)
 
@@ -98,7 +100,7 @@ def test_mode_allure_only_on_failure(pytester, tmp_path):
             assert False
         """)
 
-    result = pytester.runpytest(
+    result = pytester.runpytest_subprocess(
         "--httpdbg-allure", f"--alluredir={tmp_path}", "--httpdbg-only-on-failure"
     )
 

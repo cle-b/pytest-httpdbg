@@ -39,7 +39,7 @@ def test_no_httpdbg(pytester):
             requests.post(httpbin.url + "/intest")
     """)
 
-    result = pytester.runpytest()
+    result = pytester.runpytest_subprocess()
 
     result.assert_outcomes(passed=2)
 
@@ -60,7 +60,7 @@ def test_record_in_dir(pytester, tmp_path):
             requests.post(httpbin.url + "/intest")
     """)
 
-    result = pytester.runpytest("--httpdbg", "--httpdbg-dir", str(logs_dir))
+    result = pytester.runpytest_subprocess("--httpdbg", "--httpdbg-dir", str(logs_dir))
 
     result.assert_outcomes(passed=2)
 
@@ -90,7 +90,7 @@ def test_with_initiator(pytester, tmp_path):
             fakepackage.coucou(httpbin.url)
     """)
 
-    result = pytester.runpytest(
+    result = pytester.runpytest_subprocess(
         "--httpdbg",
         "--httpdbg-dir",
         str(logs_dir),
@@ -126,7 +126,7 @@ def test_without_initiator(pytester, tmp_path):
             fakepackage.coucou(httpbin.url)
     """)
 
-    result = pytester.runpytest("--httpdbg", "--httpdbg-dir", str(logs_dir))
+    result = pytester.runpytest_subprocess("--httpdbg", "--httpdbg-dir", str(logs_dir))
 
     result.assert_outcomes(passed=1)
 
